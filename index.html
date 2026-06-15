@@ -6,6 +6,7 @@
 <title>CRM Prospects — Lead Heritage CGP</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--navy:#0B2545;--gold:#C9A84C;--white:#FFFFFF;--bg:#F7F8FA;--border:#E4E7EE;--text-primary:#0B2545;--text-secondary:#6B7280;--text-muted:#9CA3AF;--green:#059669;--green-bg:#D1FAE5;--amber:#D97706;--amber-bg:#FEF3C7;--blue:#2563EB;--blue-bg:#DBEAFE;--red:#DC2626;--red-bg:#FEE2E2;--purple:#7C3AED;--purple-bg:#EDE9FE;--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:20px;--shadow-sm:0 1px 3px rgba(11,37,69,.08);--shadow-md:0 4px 16px rgba(11,37,69,.10);--shadow-lg:0 20px 60px rgba(11,37,69,.15);--sidebar-w:230px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -149,92 +150,51 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
 .user-dropdown-item.danger{color:var(--red)}
 .user-dropdown-item.danger:hover{background:var(--red-bg)}
 .user-dropdown-divider{height:1px;background:var(--border);margin:4px 0}
-/* ── RESPONSIVE TABLET ── */
 @media(max-width:768px){
-  /* Sidebar cachée par défaut */
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .sidebar-overlay.open{display:block}
-  /* Main prend toute la largeur */
-  .main{margin-left:0 !important;width:100%;max-width:100vw;overflow-x:hidden}
-  .layout{overflow-x:hidden}
-  /* Burger visible */
-  .burger{display:block}
-  /* Topbar : masquer éléments secondaires */
-  .topbar{padding:0 12px;gap:8px}
-  .topbar-sub{display:none}
-  .topbar-title{font-size:13px}
-  .sync-status{display:none}
-  .topbar-right{gap:6px}
-  .btn span.label{display:none}
-  .btn-sm{padding:6px 8px}
-  /* Contenu */
-  .content{padding:10px;overflow-x:hidden}
-  /* Métriques 2 colonnes */
-  .metrics-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
-  .metric-card{padding:12px}
-  .metric-value{font-size:22px}
-  .metric-icon{width:28px;height:28px;font-size:14px;margin-bottom:8px}
-  /* Toolbar colonne */
-  .toolbar{flex-direction:column;align-items:stretch;gap:8px;padding:10px}
-  .toolbar-left{flex-wrap:wrap;gap:6px}
-  .toolbar-right{justify-content:flex-end}
-  .search-box{flex:1;min-width:0}
-  .search-box input{width:100% !important;min-width:0}
-  select.filter{flex:1;min-width:0}
-  /* Formulaire */
-  .form-row{grid-template-columns:1fr}
-  /* Table : masquer colonnes secondaires */
-  th:nth-child(3),td:nth-child(3),
-  th:nth-child(4),td:nth-child(4){display:none}
-  /* Login */
-  .login-card{padding:24px}
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}.main{margin-left:0}.burger{display:block}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}.topbar-title{font-size:13px}.topbar-sub{display:none}
+  .btn span.label{display:none}.content{padding:12px}.toolbar{padding:10px 12px}.search-box input{width:140px}.search-box input:focus{width:160px}
+  th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}
 }
-
-/* ── RESPONSIVE MOBILE ── */
 @media(max-width:480px){
-  .content{padding:8px}
-  /* Métriques 2 colonnes compactes */
-  .metrics-grid{grid-template-columns:repeat(2,1fr);gap:6px}
-  .metric-card{padding:10px}
-  .metric-label{font-size:9px}
-  .metric-value{font-size:20px}
-  /* Masquer encore plus de colonnes */
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}.metric-value{font-size:22px}
   th:nth-child(5),td:nth-child(5){display:none}
-  th:nth-child(6),td:nth-child(6){display:none}
-  /* Colonne actions compacte */
-  .actions-cell{flex-direction:column;gap:2px}
-  /* Modal remonte depuis le bas */
-  .modal{
-    border-radius:var(--radius-xl) var(--radius-xl) 0 0;
-    position:fixed;bottom:0;left:0;right:0;
-    width:100%;max-width:100%;
-    max-height:92vh;
-    margin:0
-  }
-  .modal-overlay{align-items:flex-end;padding:0}
-  /* Topbar encore plus compact */
-  .topbar{height:52px;padding:0 10px}
-  .topbar-title{font-size:12px}
-  .user-menu-btn .user-email-text{display:none}
-  /* Login */
-  .login-card{padding:20px;border-radius:var(--radius-lg)}
-  .login-title{font-size:20px}
-  /* Prospect cell plus compacte */
-  .prospect-cell{gap:6px}
-  .avatar{width:28px;height:28px;font-size:10px}
-  .prospect-name{font-size:12px}
-  td{padding:10px 8px}
-  th{padding:8px}
+  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:95vh;border-radius:var(--radius-xl) var(--radius-xl) 0 0}
+  .modal-overlay{align-items:flex-end;padding:0}.login-card{padding:24px}
 }
 @media print{
   .sidebar,.topbar,.toolbar,.actions-cell,.modal-overlay,.toast,.burger,.sidebar-overlay,.user-menu{display:none!important}
-  .main{margin-left:0!important}.content{padding:10px!important}body{background:#fff!important}
-  .metrics-grid{grid-template-columns:repeat(5,1fr)!important}.table-card{box-shadow:none!important;border:1px solid #ddd!important}
-  thead{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}tr{page-break-inside:avoid}
-  @page{margin:1.5cm;size:A4 landscape}
+  .main{margin-left:0!important}
+  .content{padding:0!important}
+  body{background:#fff!important;font-size:11px!important}
+  .metrics-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:8px!important;margin-bottom:14px!important}
+  .metric-card{padding:10px!important;box-shadow:none!important;border:1px solid #ddd!important}
+  .metric-value{font-size:20px!important}
+  .table-card{box-shadow:none!important;border:1px solid #ccc!important;border-radius:4px!important}
+  table{font-size:10px!important}
+  th{padding:6px 8px!important;font-size:9px!important;background:#0B2545!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  td{padding:5px 8px!important}
+  /* Afficher TOUTES les colonnes cachées en mobile */
+  th,td{display:table-cell!important}
+  .badge{font-size:9px!important;padding:2px 6px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .date-urgent,.date-today{font-size:9px!important;padding:2px 6px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tr{page-break-inside:avoid}
+  /* En-tête PDF */
+  #print-header{display:flex!important}
+  /* Pied de page */
+  #print-footer{display:block!important}
+  @page{margin:1.2cm 1cm;size:A4 landscape}
 }
+#print-header{display:none;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #0B2545}
+#print-footer{display:none;margin-top:10px;padding-top:6px;border-top:1px solid #ddd;font-size:9px;color:#9CA3AF;display:flex;justify-content:space-between}
+.print-logo-area{display:flex;align-items:center;gap:10px}
+.print-diamond{width:26px;height:26px;background:#C9A84C;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);flex-shrink:0}
+.print-logo-img{max-height:40px;max-width:120px;object-fit:contain}
+.print-logo-text{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:#0B2545;line-height:1.2}
+.print-logo-sub{font-size:9px;color:#C9A84C;text-transform:uppercase;letter-spacing:.05em}
+.print-title-area{text-align:right}
+.print-title-area strong{display:block;font-size:15px;color:#0B2545;font-weight:700}
+.print-title-area span{font-size:10px;color:#6B7280}
 </style>
 </head>
 <body>
@@ -244,7 +204,6 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
   <div class="login-card login-card-wide" id="login-card">
     <div class="login-diamond">◆</div>
     <div class="login-title">Lead Heritage CGP</div>
-    <div class="login-sub">Connectez-vous pour accéder à votre CRM. Vos données sont synchronisées sur tous vos appareils.</div>
     <div class="auth-tabs" id="auth-tabs">
       <button class="auth-tab active" onclick="Auth.switchTab('login')" id="tab-login">Connexion</button>
       <button class="auth-tab" onclick="Auth.switchTab('register')" id="tab-register">Créer un compte</button>
@@ -284,10 +243,6 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
       <button class="btn" style="width:100%;justify-content:center;background:var(--bg)" onclick="Auth.anonymous()">
         🔓 Continuer sans compte (données locales)
       </button>
-    </div>
-    <div class="login-info">
-      🔒 Vos données sont stockées dans une base de données sécurisée (Supabase).<br>
-      Connexion chiffrée SSL. Accès depuis n'importe quel appareil.
     </div>
   </div>
 </div>
@@ -341,7 +296,7 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
             <span id="sync-label">Non connecté</span>
           </div>
           <button class="btn btn-sm" onclick="Export.pdf()" title="Exporter PDF">🖨 <span class="label">PDF</span></button>
-          <button class="btn btn-sm" onclick="Export.csv()" title="Exporter CSV">⬇ <span class="label">CSV</span></button>
+          <button class="btn btn-sm" onclick="Export.excel()" title="Exporter Excel">📊 <span class="label">Excel</span></button>
           <button class="btn btn-gold btn-sm" onclick="Crud.openModal()">＋ <span class="label">Nouveau</span></button>
           <div class="user-menu" id="user-menu">
             <button class="user-menu-btn" onclick="UI.toggleUserMenu()">
@@ -350,8 +305,9 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
             <div class="user-dropdown" id="user-dropdown">
               <div class="user-dropdown-item" style="font-size:11px;color:var(--text-muted);cursor:default" id="user-email-text">Utilisateur</div>
               <div class="user-dropdown-divider"></div>
-              <button class="user-dropdown-item" onclick="Export.csv()">⬇ Exporter CSV</button>
+              <button class="user-dropdown-item" onclick="Export.excel()">📊 Exporter Excel</button>
               <button class="user-dropdown-item" onclick="Export.pdf()">🖨 Imprimer PDF</button>
+              <button class="user-dropdown-item" onclick="Export.uploadLogo()">🖼 Changer le logo PDF</button>
               <div class="user-dropdown-divider"></div>
               <button class="user-dropdown-item danger" onclick="Auth.logout()">🚪 Déconnexion</button>
             </div>
@@ -360,6 +316,21 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
       </header>
 
       <main class="content">
+      <!-- EN-TÊTE PDF (visible seulement à l'impression) -->
+      <div id="print-header">
+        <div class="print-logo-area">
+          <img id="print-logo-img" class="print-logo-img" src="" alt="Logo" style="display:none">
+          <div id="print-diamond" class="print-diamond"></div>
+          <div>
+            <div class="print-logo-text">Lead Heritage CGP</div>
+            <div class="print-logo-sub">Conseils & Patrimoine · Cotonou</div>
+          </div>
+        </div>
+        <div class="print-title-area">
+          <strong>Rapport prospects — Formations</strong>
+          <span id="print-date-label"></span>
+        </div>
+      </div>
         <div class="metrics-grid" id="metrics"></div>
         <div class="toolbar">
           <div class="toolbar-left">
@@ -398,6 +369,11 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
               <tbody id="tbody"></tbody>
             </table>
           </div>
+        </div>
+        <!-- PIED DE PAGE PDF -->
+        <div id="print-footer">
+          <span>Lead Heritage CGP — Document confidentiel</span>
+          <span id="print-footer-date"></span>
         </div>
       </main>
     </div>
@@ -655,20 +631,110 @@ const Filters = {
 };
 
 const Export = {
-  csv() {
-    const headers=['Prénom','Nom','Entreprise','Poste','Téléphone','Email','Date rencontre','Date relance','Statut','Notes'];
-    const rows=S.prospects.map(p=>[p.prenom,p.nom,p.entreprise,p.poste,p.tel,p.email,U.fmt(p.rencontre),U.fmt(p.relance),p.statut,p.notes].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(','));
-    const csv='\uFEFF'+[headers.join(','),...rows].join('\n');
-    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='prospects_lead_heritage_'+U.today()+'.csv'; a.click(); URL.revokeObjectURL(a.href); U.toast('⬇ Export CSV téléchargé');
+  excel() {
+    try {
+      const wb = XLSX.utils.book_new();
+      // ── Onglet 1 : Tous les prospects ──
+      const headers = ['Prénom','Nom','Entreprise','Poste','Téléphone','Email','Date rencontre','Date relance','Statut','Notes'];
+      const rows = S.prospects.map(p => [
+        p.prenom||'', p.nom||'', p.entreprise||'', p.poste||'',
+        p.tel||'', p.email||'',
+        p.rencontre||'', p.relance||'',
+        p.statut||'', p.notes||''
+      ]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      // Largeurs colonnes
+      ws['!cols'] = [
+        {wch:14},{wch:16},{wch:22},{wch:18},
+        {wch:16},{wch:26},{wch:14},{wch:14},
+        {wch:13},{wch:35}
+      ];
+      // Style en-tête (gras)
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for(let C = range.s.c; C <= range.e.c; C++){
+        const cell = ws[XLSX.utils.encode_cell({r:0,c:C})];
+        if(cell) { cell.s = {font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'0B2545'}},alignment:{horizontal:'center'}}; }
+      }
+      // Filtre auto
+      ws['!autofilter'] = {ref: ws['!ref']};
+      XLSX.utils.book_append_sheet(wb, ws, '📋 Prospects');
+      // ── Onglet 2 : Résumé ──
+      const total = S.prospects.length;
+      const interesse = S.prospects.filter(p=>p.statut==='Intéressé').length;
+      const attente = S.prospects.filter(p=>p.statut==='En attente').length;
+      const relancer = S.prospects.filter(p=>p.statut==='À relancer').length;
+      const signes = S.prospects.filter(p=>p.statut==='Signé').length;
+      const refus = S.prospects.filter(p=>p.statut==='Refus').length;
+      const retard = S.prospects.filter(p=>U.isLate(p.relance)&&p.statut!=='Signé'&&p.statut!=='Refus').length;
+      const aujourdhui = S.prospects.filter(p=>U.isToday(p.relance)).length;
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['Lead Heritage CGP — Résumé prospects'],
+        ['Généré le', new Date().toLocaleDateString('fr-FR')],
+        [''],
+        ['Indicateur','Valeur'],
+        ['Total prospects', total],
+        ['Intéressés', interesse],
+        ['En attente', attente],
+        ['À relancer', relancer],
+        ['Signés', signes],
+        ['Refus', refus],
+        ['En retard de relance', retard],
+        ["Relances aujourd'hui", aujourdhui],
+      ]);
+      ws2['!cols'] = [{wch:28},{wch:12}];
+      XLSX.utils.book_append_sheet(wb, ws2, '📊 Résumé');
+      XLSX.writeFile(wb, 'prospects_lead_heritage_'+U.today()+'.xlsx');
+      U.toast('📊 Export Excel téléchargé');
+    } catch(e) { console.error(e); U.toast('❌ Erreur export Excel'); }
   },
-  pdf() { U.toast('🖨 Ouverture impression PDF…'); setTimeout(()=>window.print(),400); }
+  pdf() {
+    // Mettre à jour la date dans l'en-tête print
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const el = document.getElementById('print-date-label');
+    if(el) el.textContent = 'Généré le ' + dateStr;
+    const el2 = document.getElementById('print-footer-date');
+    if(el2) el2.textContent = 'Généré le ' + dateStr + ' — ' + S.prospects.length + ' prospect(s)';
+    // Forcer l'affichage de toutes les colonnes pour l'impression
+    U.toast('🖨 Ouverture impression PDF…');
+    setTimeout(()=>window.print(), 400);
+  },
+  uploadLogo() {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = e => {
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = document.getElementById('print-logo-img');
+        const diamond = document.getElementById('print-diamond');
+        if(img && diamond) {
+          img.src = ev.target.result;
+          img.style.display = 'block';
+          diamond.style.display = 'none';
+          localStorage.setItem('lhcgp_logo', ev.target.result);
+          U.toast('✅ Logo enregistré pour les exports');
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  },
+  loadSavedLogo() {
+    const saved = localStorage.getItem('lhcgp_logo');
+    if(saved) {
+      const img = document.getElementById('print-logo-img');
+      const diamond = document.getElementById('print-diamond');
+      if(img && diamond) { img.src=saved; img.style.display='block'; diamond.style.display='none'; }
+    }
+  }
 };
 
 const UI = {
   showApp() {
     document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='block';
     document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    document.getElementById('user-email-text').textContent=S.user?.email||'Utilisateur'; document.getElementById('user-email-display').textContent=(S.user?.email||'👤').slice(0,2).toUpperCase();
+    document.getElementById('user-email-text').textContent=S.user?.email||'Utilisateur'; document.getElementById('user-email-display').textContent=(S.user?.email||'👤').slice(0,2).toUpperCase(); Export.loadSavedLogo();
   },
   closeOverlay(id){document.getElementById(id).classList.remove('open');if(id==='modal-form')S.editId=null;},
   bgClose(e,id){if(e.target===document.getElementById(id))this.closeOverlay(id);},
