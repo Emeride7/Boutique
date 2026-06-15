@@ -149,17 +149,83 @@ textarea.form-control{resize:vertical;min-height:80px;line-height:1.6}
 .user-dropdown-item.danger{color:var(--red)}
 .user-dropdown-item.danger:hover{background:var(--red-bg)}
 .user-dropdown-divider{height:1px;background:var(--border);margin:4px 0}
+/* ── RESPONSIVE TABLET ── */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}.main{margin-left:0}.burger{display:block}
-  .metrics-grid{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}.topbar-title{font-size:13px}.topbar-sub{display:none}
-  .btn span.label{display:none}.content{padding:12px}.toolbar{padding:10px 12px}.search-box input{width:140px}.search-box input:focus{width:160px}
-  th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}
+  /* Sidebar cachée par défaut */
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  /* Main prend toute la largeur */
+  .main{margin-left:0 !important;width:100%;max-width:100vw;overflow-x:hidden}
+  .layout{overflow-x:hidden}
+  /* Burger visible */
+  .burger{display:block}
+  /* Topbar : masquer éléments secondaires */
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-sub{display:none}
+  .topbar-title{font-size:13px}
+  .sync-status{display:none}
+  .topbar-right{gap:6px}
+  .btn span.label{display:none}
+  .btn-sm{padding:6px 8px}
+  /* Contenu */
+  .content{padding:10px;overflow-x:hidden}
+  /* Métriques 2 colonnes */
+  .metrics-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  .metric-card{padding:12px}
+  .metric-value{font-size:22px}
+  .metric-icon{width:28px;height:28px;font-size:14px;margin-bottom:8px}
+  /* Toolbar colonne */
+  .toolbar{flex-direction:column;align-items:stretch;gap:8px;padding:10px}
+  .toolbar-left{flex-wrap:wrap;gap:6px}
+  .toolbar-right{justify-content:flex-end}
+  .search-box{flex:1;min-width:0}
+  .search-box input{width:100% !important;min-width:0}
+  select.filter{flex:1;min-width:0}
+  /* Formulaire */
+  .form-row{grid-template-columns:1fr}
+  /* Table : masquer colonnes secondaires */
+  th:nth-child(3),td:nth-child(3),
+  th:nth-child(4),td:nth-child(4){display:none}
+  /* Login */
+  .login-card{padding:24px}
 }
+
+/* ── RESPONSIVE MOBILE ── */
 @media(max-width:480px){
-  .metrics-grid{grid-template-columns:repeat(2,1fr)}.metric-value{font-size:22px}
+  .content{padding:8px}
+  /* Métriques 2 colonnes compactes */
+  .metrics-grid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .metric-card{padding:10px}
+  .metric-label{font-size:9px}
+  .metric-value{font-size:20px}
+  /* Masquer encore plus de colonnes */
   th:nth-child(5),td:nth-child(5){display:none}
-  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:95vh;border-radius:var(--radius-xl) var(--radius-xl) 0 0}
-  .modal-overlay{align-items:flex-end;padding:0}.login-card{padding:24px}
+  th:nth-child(6),td:nth-child(6){display:none}
+  /* Colonne actions compacte */
+  .actions-cell{flex-direction:column;gap:2px}
+  /* Modal remonte depuis le bas */
+  .modal{
+    border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;max-width:100%;
+    max-height:92vh;
+    margin:0
+  }
+  .modal-overlay{align-items:flex-end;padding:0}
+  /* Topbar encore plus compact */
+  .topbar{height:52px;padding:0 10px}
+  .topbar-title{font-size:12px}
+  .user-menu-btn .user-email-text{display:none}
+  /* Login */
+  .login-card{padding:20px;border-radius:var(--radius-lg)}
+  .login-title{font-size:20px}
+  /* Prospect cell plus compacte */
+  .prospect-cell{gap:6px}
+  .avatar{width:28px;height:28px;font-size:10px}
+  .prospect-name{font-size:12px}
+  td{padding:10px 8px}
+  th{padding:8px}
 }
 @media print{
   .sidebar,.topbar,.toolbar,.actions-cell,.modal-overlay,.toast,.burger,.sidebar-overlay,.user-menu{display:none!important}
