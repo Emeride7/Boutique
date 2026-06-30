@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Prospects — Lead Heritage CGP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card login-card-wide" id="login-card">
+    <div class="login-diamond">◆</div>
+    <div class="login-title">Lead Heritage CGP</div>
+    <div class="login-sub">Connectez-vous pour acceder a votre CRM. Vos donnees sont synchronisees sur tous vos appareils.</div>
+    <div class="auth-tabs" id="auth-tabs">
+      <button class="auth-tab active" onclick="Auth.switchTab('login')" id="tab-login">Connexion</button>
+      <button class="auth-tab" onclick="Auth.switchTab('register')" id="tab-register">Creer un compte</button>
+    </div>
+    <div id="form-login">
+      <div class="form-group" id="grp-login-email" style="margin-bottom:12px">
+        <label class="form-label">Email</label>
+        <input id="login-email" type="email" class="form-control" placeholder="votre@email.com">
+        <div class="form-error">Email invalide</div>
+      </div>
+      <div class="form-group" id="grp-login-password" style="margin-bottom:16px">
+        <label class="form-label">Mot de passe</label>
+        <input id="login-password" type="password" class="form-control" placeholder="••••••••">
+        <div class="form-error">Mot de passe requis (min 6 caracteres)</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="Auth.login()">Se connecter</button>
+    </div>
+    <div id="form-register" style="display:none">
+      <div class="form-group" id="grp-reg-email" style="margin-bottom:12px">
+        <label class="form-label">Email</label>
+        <input id="reg-email" type="email" class="form-control" placeholder="votre@email.com">
+        <div class="form-error">Email invalide</div>
+      </div>
+      <div class="form-group" id="grp-reg-password" style="margin-bottom:12px">
+        <label class="form-label">Mot de passe</label>
+        <input id="reg-password" type="password" class="form-control" placeholder="Min 6 caracteres">
+        <div class="form-error">Min 6 caracteres</div>
+      </div>
+      <div class="form-group" id="grp-reg-password2" style="margin-bottom:16px">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <input id="reg-password2" type="password" class="form-control" placeholder="••••••••">
+        <div class="form-error">Les mots de passe ne correspondent pas</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="Auth.register()">Creer mon compte</button>
+    </div>
+    <div style="margin:16px 0;border-top:1px solid var(--border);padding-top:16px">
+      <button class="btn" style="width:100%;justify-content:center;background:var(--bg)" onclick="Auth.anonymous()">
+        🔓 Continuer sans compte (donnees locales)
+      </button>
+    </div>
+    <div class="login-info">
+      🔒 Vos donnees sont stockees dans une base de donnees securisee (Supabase).<br>
+      Connexion chiffree SSL. Acces depuis n'importe quel appareil.
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="UI.closeSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-diamond">◆</div>
+        <div class="logo-name">Lead Heritage<br>CGP</div>
+        <div class="logo-tagline">Conseils & Patrimoine</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <button class="nav-item active" onclick="Filters.setRelance('');UI.closeSidebar()">
+          <span class="nav-icon">👥</span> Tous les prospects
+          <span class="nav-badge" id="nb-total">0</span>
+        </button>
+        <button class="nav-item" onclick="Filters.setRelance('today');UI.closeSidebar()">
+          <span class="nav-icon">🔔</span> Relances du jour
+          <span class="nav-badge" id="nb-today" style="display:none">0</span>
+        </button>
+        <button class="nav-item" onclick="Filters.setRelance('late');UI.closeSidebar()">
+          <span class="nav-icon">⚠️</span> En retard
+          <span class="nav-badge" id="nb-late" style="display:none">0</span>
+        </button>
+        <div class="nav-label">Par statut</div>
+        <button class="nav-item" onclick="Filters.setStatut('Intéresse');UI.closeSidebar()"><span class="nav-icon">✅</span> Interesses</button>
+        <button class="nav-item" onclick="Filters.setStatut('En attente');UI.closeSidebar()"><span class="nav-icon">⏳</span> En attente</button>
+        <button class="nav-item" onclick="Filters.setStatut('A relancer');UI.closeSidebar()"><span class="nav-icon">🔄</span> A relancer</button>
+        <button class="nav-item" onclick="Filters.setStatut('Signe');UI.closeSidebar()"><span class="nav-icon">🏆</span> Signes</button>
+        <button class="nav-item" onclick="Filters.setStatut('Refus');UI.closeSidebar()"><span class="nav-icon">❌</span> Refus</button>
+        <div class="nav-label">Outils</div>
+        <button class="nav-item" onclick="Entreprises.openModal();UI.closeSidebar()"><span class="nav-icon">🏢</span> Entreprises</button>
+        <div class="nav-label">Par tag</div>
+        <button class="nav-item" onclick="Filters.setTag('Urgent');UI.closeSidebar()"><span class="nav-icon">🔴</span> Urgent</button>
+        <button class="nav-item" onclick="Filters.setTag('VIP');UI.closeSidebar()"><span class="nav-icon">🟡</span> VIP</button>
+        <button class="nav-item" onclick="Filters.setTag('Famille');UI.closeSidebar()"><span class="nav-icon">🔵</span> Famille</button>
+        <button class="nav-item" onclick="Filters.setTag('Entreprise');UI.closeSidebar()"><span class="nav-icon">🟣</span> Entreprise</button>
+      </nav>
+      <div class="sidebar-footer">Lead Heritage CGP © 2025<br>Outil interne — confidentiel</div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="burger" onclick="UI.toggleSidebar()">☰</button>
+          <div>
+            <div class="topbar-title">Suivi prospects — Formations</div>
+            <div class="topbar-sub" id="topbar-date"></div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="sync-status" id="sync-status">
+            <div class="sync-dot" id="sync-dot"></div>
+            <span id="sync-label">Non connecte</span>
+          </div>
+          <button class="theme-toggle" id="theme-toggle" onclick="UI.toggleTheme()" title="Mode sombre / clair">🌙</button>
+          <button class="btn btn-sm" onclick="Export.pdf()" title="Exporter PDF">🖨 <span class="label">PDF</span></button>
+          <button class="btn btn-sm" onclick="Export.excel()" title="Exporter Excel">📊 <span class="label">Excel</span></button>
+          <button class="btn btn-gold btn-sm" onclick="Crud.openModal()">＋ <span class="label">Nouveau</span></button>
+          <div class="user-menu" id="user-menu">
+            <button class="user-menu-btn" onclick="UI.toggleUserMenu()">
+              <span id="user-email-display">👤</span> ▼
+            </button>
+            <div class="user-dropdown" id="user-dropdown">
+              <div class="user-dropdown-item" style="font-size:11px;color:var(--text-muted);cursor:default" id="user-email-text">Utilisateur</div>
+              <div class="user-dropdown-divider"></div>
+              <button class="user-dropdown-item" onclick="Export.excel()">📊 Exporter Excel</button>
+              <button class="user-dropdown-item" onclick="Export.pdf()">🖨 Imprimer PDF</button>
+              <button class="user-dropdown-item" onclick="Export.uploadLogo()">🖼 Changer le logo PDF</button>
+              <div class="user-dropdown-divider"></div>
+              <button class="user-dropdown-item danger" onclick="Auth.logout()">🚪 Deconnexion</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="metrics-grid" id="metrics"></div>
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search" placeholder="Rechercher..." oninput="Render.all()">
+            </div>
+            <select class="filter" id="filter-statut" onchange="Render.all()">
+              <option value="">Tous les statuts</option>
+              <option value="Intéresse">Intéresse</option>
+              <option value="En attente">En attente</option>
+              <option value="A relancer">A relancer</option>
+              <option value="Refus">Refus</option>
+              <option value="Signe">Signe</option>
+            </select>
+            <select class="filter" id="filter-relance" onchange="Render.all()">
+              <option value="">Toutes relances</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="late">En retard</option>
+            </select>
+            <select class="filter" id="filter-tag" onchange="Render.all()">
+              <option value="">Tous les tags</option>
+              <option value="Urgent">🔴 Urgent</option>
+              <option value="VIP">🟡 VIP</option>
+              <option value="Famille">🔵 Famille</option>
+              <option value="Entreprise">🟣 Entreprise</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <div class="view-switch">
+              <button id="view-btn-table" class="active" onclick="UI.setView('table')">☰ Table</button>
+              <button id="view-btn-kanban" onclick="UI.setView('kanban')">▦ Kanban</button>
+            </div>
+            <span class="result-count" id="result-count">0 prospect</span>
+          </div>
+        </div>
+
+        <div class="table-card" id="table-view">
+          <div class="table-header-row">
+            <h2>Liste des prospects</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Prospect</th><th>Entreprise</th><th>Telephone</th><th>Rencontre</th><th>Relance</th><th>Statut</th><th style="text-align:right">Actions</th></tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="cards-wrap" id="cards-wrap"></div>
+        </div>
+
+        <div id="kanban-view" style="display:none">
+          <div class="kanban-board" id="kanban-board"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENTREPRISES -->
+<div class="modal-overlay" id="modal-entreprises" onclick="UI.bgClose(event,'modal-entreprises')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>🏢 Gestion des entreprises</h3>
+        <p>Ajoutez les entreprises a visiter. Une fois visitee, elle sera marquee.</p>
+      </div>
+      <button class="btn-ghost" onclick="UI.closeOverlay('modal-entreprises')" style="font-size:17px">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="entreprise-ajout">
+        <input id="new-entreprise" type="text" class="form-control" placeholder="Nom de l'entreprise..." maxlength="100" onkeydown="if(event.key==='Enter')Entreprises.add()">
+        <button class="btn btn-gold" onclick="Entreprises.add()">＋ Ajouter</button>
+      </div>
+      <div class="section-divider">Liste des entreprises</div>
+      <div class="entreprise-list" id="entreprise-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="UI.closeOverlay('modal-entreprises')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORMULAIRE PROSPECT -->
+<div class="modal-overlay" id="modal-form" onclick="UI.bgClose(event,'modal-form')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-form-title">Nouveau prospect</h3>
+        <p id="modal-form-sub">Remplissez les informations du contact</p>
+      </div>
+      <button class="btn-ghost" onclick="UI.closeOverlay('modal-form')" style="font-size:17px">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group" id="grp-prenom">
+          <label class="form-label">Prenom *</label>
+          <input id="f-prenom" type="text" class="form-control" placeholder="Marie" maxlength="50">
+          <div class="form-error">Veuillez saisir un prenom valide (2-50 caracteres)</div>
+        </div>
+        <div class="form-group" id="grp-nom">
+          <label class="form-label">Nom *</label>
+          <input id="f-nom" type="text" class="form-control" placeholder="KOUTCHIKA" maxlength="50">
+          <div class="form-error">Veuillez saisir un nom valide (2-50 caracteres)</div>
+        </div>
+      </div>
+      <div class="section-divider">Entreprise</div>
+      <div class="form-row">
+        <div class="form-group" id="grp-entreprise-select">
+          <label class="form-label">Entreprise</label>
+          <div class="select-entreprise">
+            <select id="f-entreprise-select" class="form-control" onchange="document.getElementById('f-entreprise').value=this.value">
+              <option value="">-- Choisir une entreprise --</option>
+            </select>
+            <button class="ajout-rapide" onclick="Entreprises.openModal()" title="Gerer les entreprises">⚙️</button>
+          </div>
+        </div>
+        <div class="form-group" id="grp-entreprise">
+          <label class="form-label">Ou saisir manuellement</label>
+          <input id="f-entreprise" type="text" class="form-control" placeholder="SARL Invest Plus" maxlength="100">
+          <div class="form-error">Nom d'entreprise trop long (max 100 caracteres)</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" id="grp-poste">
+          <label class="form-label">Poste / Fonction</label>
+          <input id="f-poste" type="text" class="form-control" placeholder="Directeur General" maxlength="100">
+          <div class="form-error">Poste trop long (max 100 caracteres)</div>
+        </div>
+      </div>
+      <div class="section-divider">Coordonnees</div>
+      <div class="form-row">
+        <div class="form-group" id="grp-tel">
+          <label class="form-label">Telephone</label>
+          <input id="f-tel" type="tel" class="form-control" placeholder="+229 97 00 00 00" maxlength="30">
+          <div class="form-error">Format de telephone invalide</div>
+        </div>
+        <div class="form-group" id="grp-email">
+          <label class="form-label">Email</label>
+          <input id="f-email" type="email" class="form-control" placeholder="contact@entreprise.bj" maxlength="100">
+          <div class="form-error">Adresse email invalide</div>
+        </div>
+      </div>
+      <div class="section-divider">Suivi</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date de rencontre</label><input id="f-rencontre" type="date" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Date de relance</label><input id="f-relance" type="date" class="form-control"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Statut</label>
+        <select id="f-statut" class="form-control"><option>Intéresse</option><option>En attente</option><option>A relancer</option><option>Refus</option><option>Signe</option></select>
+      </div>
+      <div class="form-group" id="grp-notes">
+        <label class="form-label">Notes / Commentaires</label>
+        <textarea id="f-notes" class="form-control" placeholder="Interesse par la formation comptabilite..." maxlength="2000"></textarea>
+        <div class="form-error">Notes trop longues (max 2000 caracteres)</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags</label>
+        <div class="tag-picker" id="f-tags-picker">
+          <button type="button" class="tag-opt" data-tag="Urgent" onclick="Crud.toggleTag('Urgent')">🔴 Urgent</button>
+          <button type="button" class="tag-opt" data-tag="VIP" onclick="Crud.toggleTag('VIP')">🟡 VIP</button>
+          <button type="button" class="tag-opt" data-tag="Famille" onclick="Crud.toggleTag('Famille')">🔵 Famille</button>
+          <button type="button" class="tag-opt" data-tag="Entreprise" onclick="Crud.toggleTag('Entreprise')">🟣 Entreprise</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="UI.closeOverlay('modal-form')">Annuler</button>
+      <button class="btn btn-gold" onclick="Crud.save()">✓ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="modal-overlay" id="modal-detail" onclick="UI.bgClose(event,'modal-detail')">
+  <div class="modal detail-modal" id="detail-inner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="pdf-export-root"></div>
+<script src="app.js"></script>
+</body>
+</html>
