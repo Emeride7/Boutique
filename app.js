@@ -293,16 +293,27 @@ const Render={
     document.getElementById('result-count').textContent=list.length+' prospect'+(list.length!==1?'s':'');
     const cols=['Intéresse','En attente','A relancer','Signe','Refus'];
     const board=document.getElementById('kanban-board');
+    const isMobile=window.innerWidth<=768;
     board.innerHTML=cols.map(st=>{
       const items=list.filter(p=>p.statut===st);
-      return `<div class="kanban-col" data-statut="${U.esc(st)}" ondragover="Kanban.dragOver(event,this)" ondragleave="this.classList.remove('dragover')" ondrop="Kanban.drop(event,this)">
+      const dragColAttrs=isMobile?'':` ondragover="Kanban.dragOver(event,this)" ondragleave="this.classList.remove('dragover')" ondrop="Kanban.drop(event,this)"`;
+      return `<div class="kanban-col" data-statut="${U.esc(st)}"${dragColAttrs}>
         <div class="kanban-col-head"><span>${BI[st]||''} ${U.esc(st)}</span><span class="kanban-count">${items.length}</span></div>
         <div class="kanban-list">
-          ${items.map(p=>`<div class="kanban-card" draggable="true" data-id="${U.esc(p.id)}" ondragstart="Kanban.dragStart(event,'${U.esc(p.id)}')" ondragend="Kanban.dragEnd(event)" onclick="Crud.showDetail('${U.esc(p.id)}')">
-            <div class="kanban-card-name">${U.esc(p.prenom+' '+p.nom)}</div>
-            <div class="kanban-card-sub">${U.esc(p.entreprise||'')}</div>
-            <div class="kanban-card-tags">${tagChips(p)}</div>
-          </div>`).join('')||'<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:12px">Vide</div>'}
+          ${items.map(p=>{
+            const dragCardAttrs=isMobile?'':` draggable="true" ondragstart="Kanban.dragStart(event,'${U.esc(p.id)}')" ondragend="Kanban.dragEnd(event)"`;
+            const editBtn=isMobile?`<button style="border:none;background:none;font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px;color:var(--text-muted)" onclick="event.stopPropagation();Crud.openModal('${U.esc(p.id)}')">✏️</button>`:'';
+            return `<div class="kanban-card"${dragCardAttrs} onclick="Crud.showDetail('${U.esc(p.id)}')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div>
+                  <div class="kanban-card-name">${U.esc(p.prenom+' '+p.nom)}</div>
+                  <div class="kanban-card-sub">${U.esc(p.entreprise||'')}</div>
+                </div>
+                ${editBtn}
+              </div>
+              ${p.tags&&p.tags.length?`<div class="kanban-card-tags" style="margin-top:6px">${tagChips(p)}</div>`:''}
+            </div>`
+          }).join('')||'<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:12px">Vide</div>'}
         </div>
       </div>`
     }).join('')

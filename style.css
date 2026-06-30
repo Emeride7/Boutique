@@ -273,10 +273,66 @@ body[data-theme="dark"] .skeleton{background:linear-gradient(90deg,#1A2733 25%,#
 .p-card-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);padding:4px 0;border-top:1px solid #F3F4F6}
 .p-card-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:8px}
 
+/* ══════════════ RESPONSIVE MOBILE ══════════════ */
 @media(max-width:768px){
+  /* Table → Cards */
   .table-wrap{display:none}
   .cards-wrap{display:flex}
-  .kanban-col{min-width:80vw;max-width:80vw}
+
+  /* Kanban : colonnes verticales empilées pleine largeur */
+  .kanban-board{
+    flex-direction:column;
+    overflow-x:visible;
+    gap:10px
+  }
+  .kanban-col{
+    min-width:100%;
+    max-width:100%;
+    max-height:none;  /* plus de hauteur max fixe */
+    flex-shrink:1
+  }
+  .kanban-list{
+    overflow-y:visible; /* pas de scroll interne, tout s'affiche */
+    max-height:none
+  }
+  .kanban-card{
+    cursor:pointer; /* pas de drag sur mobile */
+  }
+
+  /* Stat cards sur 2 colonnes */
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Topbar compacte */
+  .topbar-title{font-size:13px}
+  .topbar-sub{display:none}
+  .btn span.label{display:none}
+  .content{padding:12px}
+  .toolbar{padding:10px 12px}
+  .search-box input{width:140px}
+  .search-box input:focus{width:160px}
+
+  /* Cacher colonnes tableau moins importantes */
+  th:nth-child(3),td:nth-child(3),
+  th:nth-child(4),td:nth-child(4){display:none}
+
+  /* View switch plus petit */
+  .view-switch button{padding:6px 9px;font-size:12px}
+
+  /* Filtres en colonne */
+  .toolbar-left{flex-direction:column;align-items:flex-start;gap:6px}
+  .toolbar{flex-direction:column;gap:8px}
+  .toolbar-right{width:100%;justify-content:space-between}
+}
+
+@media(max-width:480px){
+  .metric-value{font-size:22px}
+  th:nth-child(5),td:nth-child(5){display:none}
+  .modal{border-radius:var(--radius-xl) var(--radius-xl) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:95vh}
+  .modal-overlay{align-items:flex-end;padding:0}
+  .login-card{padding:24px}
+  /* Sur très petit écran, kanban cards un peu plus compactes */
+  .kanban-card{padding:8px 10px}
+  .kanban-col-head{padding:10px 12px}
 }
 
 /* PDF export template (offscreen) */
